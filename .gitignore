@@ -1,0 +1,14 @@
+# Python venv + caches
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime state (mutated by the web UI; defaults live in config.py)
+config.json
+
+# Arduino build artifacts
+firmware/bb-epaper/build/
+*.elf
+*.bin.*
+*.hex.*
