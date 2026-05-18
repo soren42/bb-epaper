@@ -1,4 +1,4 @@
-// bb-epaper firmware — XIAO ESP32-S3 + Seeed 7.5" 800x480 mono panel (UC8179).
+// bb-epaper firmware — XIAO ESP32-C3 + Seeed 7.5" 800x480 mono panel (UC8179).
 //
 // What it does:
 //   1. On first boot (or held BOOT button), opens a captive-portal AP named
@@ -24,27 +24,21 @@
 #include <ArduinoJson.h>      // bblanchon/ArduinoJson
 
 // --- e-paper driver ---
-// GxEPD2_750_GDEY075T7 LUT matches this panel (T7 LUT clears the screen
-// instead of rendering). But GDEY075T7's stock full_refresh_time=1200ms is
-// too short for a real full refresh; with BUSY=-1, GxEPD2 powers the panel
-// off mid-scan and only the top ~8% commits. Fixed by patching the value
-// in GxEPD2/src/gdey/GxEPD2_750_GDEY075T7.h to 5000 ms. If you reinstall
-// GxEPD2, re-apply that patch (or wire BUSY correctly and revert it).
+// GxEPD2_750_GDEY075T7 LUT matches this panel; the GxEPD2_750_T7 (Waveshare
+// LUT) renders blank on the GoodDisplay variant we have.
 #include <GxEPD2_BW.h>
 
-// --- Pin map (Seeed XIAO ESP32-S3 ↔ ePaper driver board) ---
-// These are the XIAO "Dx" labels. Adjust if you wired the panel differently.
-#define PIN_BUSY  D5
+// --- Pin map (Seeed XIAO ePaper Driver Board V2, P/N 6374) ---
+// XIAO "Dx" labels. BUSY moved D5 -> D2 in V2 of this carrier; the older
+// ePaper Breakout Board (P/N 105990172) had BUSY on D5.
+#define PIN_BUSY  D2
 #define PIN_RST   D0
 #define PIN_DC    D3
 #define PIN_CS    D1
 // SCK (D8) and MOSI (D10) are picked up by SPI.begin() defaults.
 
-// BUSY=-1 because the BUSY pin is mis-wired for this carrier (EE04/EE05).
-// With BUSY disconnected, GxEPD2 uses delay(full_refresh_time). We patched
-// GDEY075T7.h to set that to 5000 ms; see the include block comment above.
 GxEPD2_BW<GxEPD2_750_GDEY075T7, GxEPD2_750_GDEY075T7::HEIGHT>
-  display(GxEPD2_750_GDEY075T7(/*CS=*/PIN_CS, /*DC=*/PIN_DC, /*RST=*/PIN_RST, /*BUSY=*/-1));
+  display(GxEPD2_750_GDEY075T7(/*CS=*/PIN_CS, /*DC=*/PIN_DC, /*RST=*/PIN_RST, /*BUSY=*/PIN_BUSY));
 
 // --- Frame buffer (matches Pi-side renderer.image_to_packed_1bpp) ---
 static constexpr uint16_t W = 800;

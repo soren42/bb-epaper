@@ -6,21 +6,24 @@ device just pulls a 48 KB packed bitmap and blits it.
 
 ## Hardware
 
-- **MCU:** Seeed Studio XIAO ESP32-S3
+- **MCU:** Seeed Studio XIAO ESP32-C3 (some product listings call this an S3, but the chip reports as C3 and the firmware is built with the C3 FQBN)
 - **Panel:** Seeed 7.5" 800×480 mono ePaper (UC8179 controller)
-- **Carrier:** Seeed XIAO ePaper Driver Board (recommended — handles SPI + RST/BUSY/DC wiring)
+- **Carrier:** Seeed XIAO ePaper Driver Board **V2** (P/N 6374 — handles SPI + RST/BUSY/DC wiring)
 - **Power:** USB-C (continuous; no battery / deep sleep path)
 
-Pin mapping in `bb-epaper.ino` is for the Seeed driver board:
+Pin mapping in `bb-epaper.ino` is for the V2 driver board:
 
 | Signal | XIAO pin |
 |--------|---------|
-| BUSY   | D5      |
+| BUSY   | D2      |
 | RST    | D0      |
 | DC     | D3      |
 | CS     | D1      |
 | SCK    | D8      (SPI default) |
 | MOSI   | D10     (SPI default) |
+
+Note: the older ePaper Breakout Board (P/N 105990172) puts BUSY on D5 instead.
+If you're on that carrier, change `PIN_BUSY` to `D5` in `bb-epaper.ino`.
 
 Edit the `PIN_*` macros if you wired the panel differently.
 
@@ -30,7 +33,7 @@ Edit the `PIN_*` macros if you wired the panel differently.
 2. **Board:** *XIAO_ESP32C3* (Tools → Board → ESP32 Arduino → XIAO_ESP32C3).
    Note: the unit reports as C3 despite some product pages saying S3.
 3. **Libraries** (Tools → Manage Libraries):
-   - `GxEPD2` by Jean-Marc Zingg — **then apply [the patch below](#library-patch)**
+   - `GxEPD2` by Jean-Marc Zingg
    - `WiFiManager` by tzapu
    - `ArduinoJson` by Benoît Blanchon
 4. Open `firmware/bb-epaper/bb-epaper.ino`, plug the XIAO in (BOOT-held first
@@ -42,30 +45,6 @@ CLI flow (what we actually use):
 ~/bin/arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32C3 firmware/bb-epaper
 ~/bin/arduino-cli upload  -p /dev/ttyACM0 --fqbn esp32:esp32:XIAO_ESP32C3 firmware/bb-epaper
 ```
-
-## Library patch
-
-The BUSY pin on the Seeed XIAO ePaper Display Board EE04/EE05 carrier is not
-on D5 (where the older standalone ePaper Driver Board put it). Until we map
-the correct GPIO, the firmware constructs the panel with `BUSY=-1`, which
-tells GxEPD2 to substitute fixed `delay()`s for BUSY polling.
-
-That makes one driver constant load-bearing: `GxEPD2_750_GDEY075T7::full_refresh_time`.
-Stock value is 1200 ms (a fast-LUT figure); the real UC8179 7.5" full refresh
-takes ~4.1 s. With 1200 ms, `powerOff()` halts the scan after ~8% — you see
-only the header, body never commits.
-
-Apply [`patches/GxEPD2_750_GDEY075T7-full_refresh_time.patch`](patches/GxEPD2_750_GDEY075T7-full_refresh_time.patch)
-to your local GxEPD2 install:
-
-```
-cd ~/Arduino/libraries/GxEPD2
-patch -p1 < /usr/local/bb-epaper/firmware/patches/GxEPD2_750_GDEY075T7-full_refresh_time.patch
-```
-
-If you ever reinstall/upgrade GxEPD2, re-apply this patch. Once the real BUSY
-GPIO is identified and wired in `bb-epaper.ino`, you can revert the patch
-(BUSY polling will pace the wait properly, and the constant stops mattering).
 
 ## First-time setup
 
