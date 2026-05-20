@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>bb-epaper — Controls &amp; Interface Reference</title>
+<style>
+  :root {
+    --bg:        #0a0a0a;
+    --panel:     #141414;
+    --panel2:    #1a1a1a;
+    --border:    #2a2a2a;
+    --text:      #d4d4d4;
+    --muted:     #8a8a8a;
+    --heading:   #ffb74d;
+    --amber:     #ff8c00;
+    --amberDim:  rgba(255,140,0,0.35);
+    --green:     #22ee22;
+    --red:       #ff3b3b;
+    --mono:      'JetBrains Mono', 'SF Mono', 'Cascadia Mono', Consolas, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 28px 80px;
+  }
+  header.top {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+  }
+  header.top .brand {
+    color: var(--amber);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  header.top h1 {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 22px;
+    margin: 6px 0 4px;
+    color: var(--heading);
+    letter-spacing: 0.02em;
+  }
+  header.top .sub {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  section {
+    border-top: 1px solid var(--border);
+    padding: 28px 0 8px;
+  }
+  section:first-of-type { border-top: none; padding-top: 0; }
+  h2 {
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin: 0 0 14px;
+    font-weight: 500;
+  }
+  h2::before {
+    content: "§ ";
+    color: var(--amberDim);
+  }
+  h3 {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--heading);
+    margin: 22px 0 8px;
+    font-weight: 500;
+  }
+  p { margin: 10px 0; color: var(--text); }
+  p.lead { color: var(--text); }
+  .muted { color: var(--muted); }
+  code, kbd {
+    font-family: var(--mono);
+    color: var(--heading);
+    background: var(--panel2);
+    padding: 1px 5px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 12px;
+  }
+  kbd { background: #0d0d0d; }
+  pre {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    overflow-x: auto;
+    font-size: 12px;
+    color: var(--text);
+    margin: 12px 0;
+  }
+  ul, ol {
+    margin: 8px 0 12px;
+    padding-left: 22px;
+  }
+  ul li, ol li { margin: 4px 0; }
+  ul li::marker { color: var(--amberDim); }
+  hr.sep {
+    border: 0;
+    border-top: 1px dashed var(--border);
+    margin: 18px 0;
+  }
+  /* Two-up grids */
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .grid2 { grid-template-columns: 1fr; }
+  }
+  /* Cards / panels */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 16px 18px;
+  }
+  .panel h3 { margin-top: 0; }
+  /* Tables */
+  table.api {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 4px;
+    font-size: 12px;
+  }
+  table.api th, table.api td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  table.api th {
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  table.api td.method {
+    color: var(--green);
+    font-weight: 600;
+    width: 70px;
+  }
+  table.api td.method.post { color: var(--amber); }
+  table.api td.path { color: var(--heading); width: 38%; }
+  /* SVG containers */
+  figure {
+    margin: 14px 0 4px;
+    border: 1px solid var(--border);
+    background: var(--panel2);
+    padding: 14px;
+  }
+  figure svg { display: block; width: 100%; height: auto; }
+  figcaption {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  /* Boot button demo */
+  .demo {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 18px;
+    margin: 14px 0;
+  }
+  .demo .row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .demo .btn {
+    user-select: none;
+    -webkit-user-select: none;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 28%, #2a2a2a 0%, #111 70%);
+    border: 1px solid var(--border);
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.04);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 60ms ease, box-shadow 60ms ease, color 200ms ease;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .demo .btn:hover { color: var(--text); }
+  .demo .btn.pressed {
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.8);
+    color: var(--amber);
+    border-color: var(--amber);
+  }
+  .demo .meter {
+    flex: 1;
+    min-width: 240px;
+  }
+  .demo .meter .bar {
+    height: 8px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .demo .meter .fill {
+    position: absolute;
+    inset: 0 100% 0 0;
+    background: linear-gradient(90deg, var(--amberDim), var(--amber));
+    transition: right 60ms linear;
+  }
+  .demo .meter .fill.done {
+    background: linear-gradient(90deg, var(--green), #66ff88);
+  }
+  .demo .meter .label {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+  .demo .meter .state {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--heading);
+    min-height: 1.4em;
+  }
+  /* Inline status pill */
+  .pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-right: 6px;
+    vertical-align: 1px;
+  }
+  .pill.warn { border-color: var(--red); color: var(--red); }
+  .pill.ok   { border-color: var(--green); color: var(--green); }
+  /* Footer */
+  footer {
+    margin-top: 48px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+  a { color: var(--amber); text-decoration: none; border-bottom: 1px dotted var(--amberDim); }
+  a:hover { color: var(--heading); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <div class="brand">bb-epaper · documentation</div>
+  <h1>Controls &amp; Interface Reference</h1>
+  <div class="sub">How to set up, configure, and live with the device.</div>
+</header>
+
+<!-- ─────────────────────────────────────────────── -->
+<section>
+  <h2>At a Glance</h2>
+  <p class="lead">
+    bb-epaper is a two-piece system. A Raspberry Pi service renders an
+    800×480 monochrome frame and serves it over HTTP; a Seeed XIAO ESP32-C3
+    on the wall fetches that frame every few minutes and blits it to a 7.5"
+    e-paper panel. Everything you configure lives on the Pi — the device
+    is a thin client.
+  </p>
+
+  <div class="grid2" style="margin-top: 14px;">
+    <div class="panel">
+      <h3>What you touch</h3>
+      <ul>
+        <li><strong>BOOT button</strong> on the XIAO — runtime gesture to re-enter setup</li>
+        <li><strong>Captive portal</strong> at <code>http://192.168.4.1</code> — first-time WiFi config</li>
+        <li><strong>Web UI</strong> at <code>http://&lt;pi-ip&gt;:8081/</code> — day-to-day configuration</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>What you don't touch</h3>
+      <ul>
+        <li>The firmware — no reflash needed to change layout, pages, cadence, or data</li>
+        <li>The panel — no buttons, no controls; output only</li>
+        <li>The Driver Board's user buttons — present but not wired into firmware</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────── -->
+<section>
+  <h2>The Device</h2>
+
+  <figure>
+    <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="XIAO ESP32-C3 board diagram">
+      <!-- background grid -->
+      <defs>
+        <pattern id="dotgrid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="0.6" fill="#1f1f1f"/>
+        </pattern>
+      </defs>
+      <rect x="0" y="0" width="720" height="220" fill="url(#dotgrid)"/>
+
+      <!-- XIAO board outline -->
+      <g transform="translate(180, 50)">
+        <!-- PCB -->
+        <rect x="0" y="0" width="360" height="120" rx="6" fill="#0e0e0e" stroke="#2a2a2a" stroke-width="1"/>
+        <!-- USB-C jack -->
+        <rect x="-22" y="38" width="22" height="44" fill="#444" stroke="#666"/>
+        <text x="-11" y="64" fill="#888" font-family="monospace" font-size="9" text-anchor="middle">USB-C</text>
+
+        <!-- Antenna (opposite end) -->
+        <path d="M 360 38 L 380 38 L 380 50 L 372 50 L 372 70 L 380 70 L 380 82 L 360 82 Z"
+              fill="none" stroke="#ff8c00" stroke-width="1.4"/>
+        <text x="396" y="64" fill="#8a8a8a" font-family="monospace" font-size="10">ANT</text>
+
+        <!-- Castellated pads top -->
+        <g fill="#a07840">
+          <rect x="35"  y="-6" width="14" height="12"/>
+          <rect x="65"  y="-6" width="14" height="12"/>
+          <rect x="95"  y="-6" width="14" height="12"/>
+          <rect x="125" y="-6" width="14" height="12"/>
+          <rect x="155" y="-6" width="14" height="12"/>
+          <rect x="185" y="-6" width="14" height="12"/>
+          <rect x="215" y="-6" width="14" height="12"/>
+        </g>
+        <!-- Castellated pads bottom -->
+        <g fill="#a07840">
+          <rect x="35"  y="114" width="14" height="12"/>
+          <rect x="65"  y="114" width="14" height="12"/>
+          <rect x="95"  y="114" width="14" height="12"/>
+          <rect x="125" y="114" width="14" height="12"/>
+          <rect x="155" y="114" width="14" height="12"/>
+          <rect x="185" y="114" width="14" height="12"/>
+          <rect x="215" y="114" width="14" height="12"/>
+        </g>
+
+        <!-- ESP32 chip in the middle -->
+        <rect x="135" y="40" width="90" height="40" fill="#1a1a1a" stroke="#3a3a3a"/>
+        <text x="180" y="58" fill="#666" font-family="monospace" font-size="9" text-anchor="middle">ESP32-C3</text>
+        <text x="180" y="72" fill="#444" font-family="monospace" font-size="7" text-anchor="middle">RF SHIELD</text>
+
+        <!-- RESET button (larger) -->
+        <g>
+          <rect x="50" y="35" width="32" height="32" rx="4" fill="#1f1f1f" stroke="#3a3a3a"/>
+          <rect x="56" y="41" width="20" height="20" rx="3" fill="#2a2a2a" stroke="#4a4a4a"/>
+          <text x="66" y="80" fill="#d4d4d4" font-family="monospace" font-size="10" text-anchor="middle">RESET</text>
+        </g>
+
+        <!-- BOOT button (smaller) -->
+        <g>
+          <rect x="98" y="45" width="22" height="22" rx="3" fill="#1f1f1f" stroke="#ff8c00"/>
+          <rect x="103" y="50" width="12" height="12" rx="2" fill="#2a2a2a" stroke="#ff8c00"/>
+          <text x="109" y="80" fill="#ff8c00" font-family="monospace" font-size="10" text-anchor="middle">BOOT</text>
+        </g>
+
+        <!-- callout arrow to BOOT -->
+        <g stroke="#ff8c00" stroke-width="1" fill="none">
+          <path d="M 109 96 L 109 132 L 60 132" />
+          <polygon points="60,132 66,128 66,136" fill="#ff8c00"/>
+        </g>
+      </g>
+
+      <!-- legend text -->
+      <text x="40" y="172" fill="#ff8c00" font-family="monospace" font-size="11" letter-spacing="2">SMALLER OF THE TWO BUTTONS</text>
+      <text x="40" y="188" fill="#8a8a8a" font-family="monospace" font-size="10">Held during runtime → re-enter setup. Held during reset → USB download mode.</text>
+    </svg>
+    <figcaption>Top-down view of the Seeed XIAO ESP32-C3. The BOOT button is the smaller one; the RESET button is larger. They sit next to each other near the USB-C end of the board.</figcaption>
+  </figure>
+
+  <p>
+    The XIAO snaps into a <strong>Seeed XIAO ePaper Driver Board V2</strong>
+    (P/N 6374), which routes SPI plus the four control lines (BUSY, RST,
+    DC, CS) to the 24-pin FPC connector on the 7.5" panel. The Driver
+    Board has its own buttons; the bb-epaper firmware does not use them.
+    The only physical control that matters for bb-epaper is the XIAO's
+    <strong>BOOT</strong> button.
+  </p>
+</section>
+
+<!-- ─────────────────────────────────────────────── -->
+<section>
+  <h2>Physical Control · The BOOT Button</h2>
+
+  <p>
+    BOOT is dual-purpose. Its meaning depends on <em>when</em> you press it.
+  </p>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3><span class="pill warn">During Reset</span> USB Download Mode</h3>
+      <p class="muted">
+        Hold BOOT while pressing RESET (or while plugging in USB). The
+        ESP32-C3 enters its ROM USB bootloader. The device will not run
+        firmware; you can flash it from <code>arduino-cli</code> or
+        <code>esptool</code>. Release once enumeration is done.
+      </p>
+    </div>
+    <div class="panel">
+      <h3><span class="pill ok">During Runtime</span> Re-enter Setup</h3>
+      <p class="muted">
+        With the device already booted and running normally, hold BOOT for
+        <strong>≥ 2 seconds</strong>. The firmware notices, wipes saved
+        WiFi credentials, paints a setup splash, and reboots into the
+        <code>bb-epaper-setup</code> AP.
+      </p>
+    </div>
+  </div>
+
+  <h3>Try the gesture</h3>
+  <p class="muted">
+    Press and hold the simulated BOOT button below. The real device uses
+    the same timing.
+  </p>
+
+  <div class="demo" id="bootDemo">
+    <div class="row">
+      <button class="btn" id="bootBtn" aria-label="Simulated BOOT button">BOOT</button>
+      <div class="meter">
+        <div class="bar"><div class="fill" id="bootFill"></div></div>
+        <div class="label" id="bootLabel">held: 0.00 s &nbsp; threshold: 2.00 s</div>
+        <div class="state" id="bootState">Idle. Press and hold to start.</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="muted">
+    Releasing before 2 s does nothing — the firmware resets the press
+    counter. Releasing after 2 s commits: WiFi creds are erased, the
+    panel paints "setup mode — rebooting into portal…", and the device
+    restarts into the captive-portal AP.
+  </p>
+</section>
+
+<!-- ─────────────────────────────────────────────── -->
+<section>
+  <h2>First-Time Setup · The Captive Portal</h2>
+
+  <p>
+    On first boot the device has no WiFi credentials, so it opens an
+    open access point named <code>bb-epaper-setup</code>. The same path
+    is also taken after a BOOT-hold gesture.
+  </p>
+
+  <figure>
+    <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Captive portal mockup">
+      <!-- phone frame -->
+      <g transform="translate(70, 30)">
+        <rect x="0" y="0" width="220" height="260" rx="22" fill="#0e0e0e" stroke="#2a2a2a"/>
+        <rect x="14" y="32" width="192" height="200" fill="#fff"/>
+        <circle cx="110" cy="248" r="6" fill="none" stroke="#444"/>
+        <!-- portal content -->
+        <text x="110" y="60" fill="#111" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">bb-epaper-setup</text>
+        <line x1="24" y1="70" x2="196" y2="70" stroke="#ddd"/>
+
+        <text x="24" y="90" fill="#222" font-family="monospace" font-size="9">WiFi SSID</text>
+        <rect x="24" y="95" width="172" height="18" fill="#f4f4f4" stroke="#ccc"/>
+        <text x="30" y="108" fill="#666" font-family="monospace" font-size="9">home-net</text>
+
+        <text x="24" y="128" fill="#222" font-family="monospace" font-size="9">Password</text>
+        <rect x="24" y="133" width="172" height="18" fill="#f4f4f4" stroke="#ccc"/>
+        <text x="30" y="146" fill="#666" font-family="monospace" font-size="9">••••••••••</text>
+
+        <text x="24" y="166" fill="#222" font-family="monospace" font-size="9">BB-Terminal server URL</text>
+        <rect x="24" y="171" width="172" height="18" fill="#f4f4f4" stroke="#ccc"/>
+        <text x="30" y="184" fill="#666" font-family="monospace" font-size="8">http://10.5.2.20:8081</text>
+
+        <rect x="24" y="200" width="172" height="22" fill="#ff8c00"/>
+        <text x="110" y="215" fill="#000" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">SAVE</text>
+      </g>
+
+      <!-- arrow to e-paper splash -->
+      <g stroke="#ff8c00" stroke-width="1.5" fill="none">
+        <path d="M 300 160 L 380 160"/>
+        <polygon points="380,160 374,156 374,164" fill="#ff8c00"/>
+      </g>
+
+      <!-- e-paper splash on right -->
+      <g transform="translate(400, 60)">
+        <rect x="0" y="0" width="260" height="200" fill="#f4f4f4" stroke="#888"/>
+        <text x="20" y="40" fill="#000" font-family="monospace" font-size="20" font-weight="bold">bb-epaper</text>
+        <text x="20" y="76" fill="#000" font-family="monospace" font-size="14">setup mode</text>
+        <text x="20" y="100" fill="#000" font-family="monospace" font-size="12">join 'bb-epaper-setup'</text>
+        <text x="20" y="116" fill="#000" font-family="monospace" font-size="12">→ http://192.168.4.1</text>
+      </g>
+      <text x="530" y="290" fill="#8a8a8a" font-family="monospace" font-size="10" text-anchor="middle">what the panel shows while AP is active</text>
+    </svg>
+    <figcaption>The captive portal (left) and the splash the device paints onto the e-paper while the AP is up (right).</figcaption>
+  </figure>
+
+  <h3>Step by step</h3>
+  <ol>
+    <li>From your phone or laptop, join the WiFi network <code>bb-epaper-setup</code> (open, no password).</li>
+    <li>The captive portal should pop up. If it doesn't, browse to <code>http://192.168.4.1</code>.</li>
+    <li>Tap <strong>Configure WiFi</strong>, pick your SSID, enter the password.</li>
+    <li>Set <strong>BB-Terminal server URL</strong> to <code>http://&lt;pi-ip&gt;:8081</code> (default <code>http://10.5.2.20:8081</code>).</li>
+    <li>Tap <strong>Save</strong>. The device reboots, joins WiFi, pulls a frame, paints it.</li>
+  </ol>
+
+  <p class="muted">
+    The portal has a 3-minute timeout. If you don't save in time, the
+    device reboots and tries to reconnect with whatever creds it had
+    (or, on first boot, comes right back into the portal).
+  </p>
+</section>
+
+<!-- ─────────────────────────────────────────────── -->
+<section>
+  <h2>Day-to-Day · The Web UI</h2>
+
+  <p>
+    Once the device is online, everything else is configured from the
+    Pi's web UI at <code>http://&lt;pi-ip&gt;:8081/</code>. Open it in
+    any browser on the same network.
+  </p>
+
+  <figure>
+    <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Web UI mockup">
+      <rect x="0" y="0" width="720" height="320" fill="#0a0a0a"/>
+      <!-- browser chrome -->
+      <rect x="20" y="20" width="680" height="280" fill="#141414" stroke="#2a2a2a"/>
+      <rect x="20" y="20" width="680" height="26" fill="#1a1a1a" stroke="#2a2a2a"/>
+      <circle cx="36" cy="33" r="4" fill="#ff3b3b"/>
+      <circle cx="50" cy="33" r="4" fill="#ff8c00"/>
+      <circle cx="64" cy="33" r="4" fill="#22ee22"/>
+      <rect x="80" y="26" width="600" height="14" fill="#0e0e0e" stroke="#2a2a2a"/>
+      <text x="86" y="36" fill="#ff8c00" font-family="monospace" font-size="9">http://10.5.2.20:8081/</text>
+
+      <!-- header bar -->
+      <text x="36" y="68" fill="#ff8c00" font-family="monospace" font-size="11" letter-spacing="2">BB-EPAPER · DASHBOARD</text>
+      <line x1="20" y1="78" x2="700" y2="78" stroke="#2a2a2a"/>
+
+      <!-- live preview -->
+      <text x="36" y="98" fill="#ffb74d" font-family="monospace" font-size="9" letter-spacing="2">LIVE PREVIEW</text>
+      <rect x="36" y="106" width="280" height="168" fill="#f4f4f4" stroke="#888"/>
+      <!-- mock preview content -->
+      <text x="48" y="124" fill="#000" font-family="monospace" font-size="9" font-weight="bold">WATCHLIST</text>
+      <line x1="48" y1="128" x2="304" y2="128" stroke="#000" stroke-width="0.5"/>
+      <g fill="#000" font-family="monospace" font-size="7">
+        <text x="48" y="142">AAPL  217.45  +1.2%</text>
+        <text x="180" y="142">SPY   542.10  +0.3%</text>
+        <text x="48" y="156">MSFT  430.22  +0.8%</text>
+        <text x="180" y="156">QQQ   468.55  +0.5%</text>
+        <text x="48" y="170">GOOGL 168.10  -0.4%</text>
+        <text x="180" y="170">BTC   65122   -1.1%</text>
+        <text x="48" y="184">TSLA  248.30  +2.1%</text>
+        <text x="180" y="184">ETH   3145    -0.7%</text>
+      </g>
+
+      <!-- config form -->
+      <text x="340" y="98" fill="#ffb74d" font-family="monospace" font-size="9" letter-spacing="2">CONFIG</text>
+      <g font-family="monospace" font-size="9" fill="#d4d4d4">
+        <text x="340" y="118">refresh_seconds</text>
+        <rect x="466" y="108" width="200" height="14" fill="#0e0e0e" stroke="#ff8c00"/>
+        <text x="472" y="119" fill="#ffb74d">300</text>
+
+        <text x="340" y="138">pages</text>
+        <rect x="466" y="128" width="200" height="14" fill="#0e0e0e" stroke="#2a2a2a"/>
+        <text x="472" y="139" fill="#ffb74d">watch, cc</text>
+
+        <text x="340" y="158">data_ttl_seconds</text>
+        <rect x="466" y="148" width="200" height="14" fill="#0e0e0e" stroke="#2a2a2a"/>
+        <text x="472" y="159" fill="#ffb74d">60</text>
+      </g>
+      <rect x="466" y="174" width="80" height="18" fill="#ff8c00"/>
+      <text x="506" y="186" fill="#000" font-family="monospace" font-size="9" font-weight="bold" text-anchor="middle">SAVE</text>
+
+      <!-- device status -->
+      <text x="340" y="216" fill="#ffb74d" font-family="monospace" font-size="9" letter-spacing="2">DEVICE STATUS</text>
+      <g font-family="monospace" font-size="9" fill="#d4d4d4">
+        <text x="340" y="236">last heartbeat   <tspan fill="#22ee22">12s ago</tspan></text>
+        <text x="340" y="250">fw               <tspan fill="#ffb74d">bb-epaper-fw 0.1.0</tspan></text>
+        <text x="340" y="264">rssi             <tspan fill="#ffb74d">-58 dBm</tspan></text>
+        <text x="340" y="278">current page     <tspan fill="#ffb74d">watch</tspan></text>
+      </g>
+    </svg>
+    <figcaption>Web UI layout: live preview (left), config form (top right), device status (bottom right).</figcaption>
+  </figure>
+
+  <h3>What each control does</h3>
+  <ul>
+    <li>
+      <code>refresh_seconds</code> — how long the device sleeps between frame
+      fetches. Default <strong>300</strong>. Clamped <strong>60–3600</strong>
+      by the firmware. Server-controlled: the new value reaches the device
+      on its next heartbeat reply.
+    </li>
+    <li>
+      <code>pages</code> — comma-separated list of page names to rotate
+      through. Built-ins: <code>watch</code>, <code>cc</code>. The device
+      picks one each cycle:
+      <code>page = int(time.time() // refresh_seconds) % len(pages)</code>.
+    </li>
+    <li>
+      <code>data_ttl_seconds</code> — how long the Pi caches upstream market
+      data before re-fetching. Independent from <code>refresh_seconds</code>;
+      the rendered frame can be re-baked from cached data.
+    </li>
+  </ul>
+
+  <p class="muted">
+    Changes apply on the next heartbeat round-trip — i.e., within one
+    <code>refresh_seconds</code> window at worst.
+  </p>
+</section>
+
+<!-- ─────────────────────────────────────────────── -->
+<section>
+  <h2>What the Device Shows</h2>
+
+  <figure>
+    <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Page layouts">
+      <!-- watch page -->
+      <g transform="translate(40, 20)">
+        <rect x="0" y="0" width="280" height="170" fill="#f4f4f4" stroke="#888"/>
+        <text x="10" y="16" fill="#000" font-family="monospace" font-size="10" font-weight="bold">WATCHLIST</text>
+        <text x="270" y="16" fill="#000" font-family="monospace" font-size="8" text-anchor="end">05:18 ET</text>
+        <line x1="6" y1="22" x2="274" y2="22" stroke="#000" stroke-width="0.5"/>
+        <g font-family="monospace" font-size="7" fill="#000">
+          <!-- column 1 -->
+          <text x="10" y="36">AAPL  217.45  +1.2%</text>
+          <text x="10" y="48">MSFT  430.22  +0.8%</text>
+          <text x="10" y="60">GOOGL 168.10  -0.4%</text>
+          <text x="10" y="72">AMZN  189.50  +0.9%</text>
+          <text x="10" y="84">TSLA  248.30  +2.1%</text>
+          <text x="10" y="96">META  528.00  +0.6%</text>
+          <text x="10" y="108">NVDA  955.10  +3.4%</text>
+          <text x="10" y="120">SPY   542.10  +0.3%</text>
+          <text x="10" y="132">QQQ   468.55  +0.5%</text>
+          <text x="10" y="144">DIA   408.20  +0.2%</text>
+          <text x="10" y="156">IWM   215.40  -0.1%</text>
+          <!-- column 2 -->
+          <text x="150" y="36">BTC   65122   -1.1%</text>
+          <text x="150" y="48">ETH   3145    -0.7%</text>
+          <text x="150" y="60">SOL   148.5   +1.8%</text>
+          <text x="150" y="72">^GSPC 5421    +0.3%</text>
+          <text x="150" y="84">^DJI  40220   +0.2%</text>
+          <text x="150" y="96">^IXIC 17080   +0.5%</text>
+          <text x="150" y="108">GLD   215.4   +0.4%</text>
+          <text x="150" y="120">SLV   28.10   -0.2%</text>
+          <text x="150" y="132">USO   78.40   +0.6%</text>
+          <text x="150" y="144">VIX   13.05   -2.1%</text>
+          <text x="150" y="156">TLT   95.80   +0.1%</text>
+        </g>
+        <text x="140" y="186" fill="#8a8a8a" font-family="monospace" font-size="10" text-anchor="middle">page: watch</text>
+      </g>
+
+      <!-- cc page -->
+      <g transform="translate(380, 20)">
+        <rect x="0" y="0" width="280" height="170" fill="#f4f4f4" stroke="#888"/>
+        <text x="10" y="16" fill="#000" font-family="monospace" font-size="10" font-weight="bold">MARKETS</text>
+        <text x="270" y="16" fill="#000" font-family="monospace" font-size="8" text-anchor="end">05:18 ET</text>
+        <line x1="6" y1="22" x2="274" y2="22" stroke="#000" stroke-width="0.5"/>
+        <g font-family="monospace" font-size="7" fill="#000">
+          <text x="10" y="36">^GSPC 5421.0 +0.3%</text>
+          <text x="100" y="36">^DJI 40220 +0.2%</text>
+          <text x="190" y="36">^IXIC 17080 +0.5%</text>
+          <text x="10" y="48">^RUT 2154 -0.1%</text>
+          <text x="100" y="48">^VIX 13.05 -2.1%</text>
+        </g>
+        <line x1="6" y1="56" x2="274" y2="56" stroke="#000" stroke-width="0.5"/>
+        <text x="10" y="70" fill="#000" font-family="monospace" font-size="8" font-weight="bold">GAINERS</text>
+        <g font-family="monospace" font-size="7" fill="#000">
+          <text x="10" y="82">NVDA  +3.4%   955.10</text>
+          <text x="10" y="94">AMD   +2.8%   168.22</text>
+          <text x="10" y="106">TSLA  +2.1%   248.30</text>
+          <text x="10" y="118">AAPL  +1.2%   217.45</text>
+        </g>
+        <text x="150" y="70" fill="#000" font-family="monospace" font-size="8" font-weight="bold">LOSERS</text>
+        <g font-family="monospace" font-size="7" fill="#000">
+          <text x="150" y="82">BTC   -1.1%   65122</text>
+          <text x="150" y="94">ETH   -0.7%   3145</text>
+          <text x="150" y="106">GOOGL -0.4%   168.10</text>
+          <text x="150" y="118">SLV   -0.2%    28.10</text>
+        </g>
+        <text x="140" y="186" fill="#8a8a8a" font-family="monospace" font-size="10" text-anchor="middle">page: cc</text>
+      </g>
+    </svg>
+    <figcaption>Built-in pages. Rotation order is the <code>pages</code> list in the config; the active page is chosen by integer floor of <code>time.time() / refresh_seconds</code>.</figcaption>
+  </figure>
+
+  <p class="muted">
+    Layout changes don't require a reflash — edit
+    <code>/usr/local/bb-epaper/renderer.py</code> on the Pi and run
+    <code>sudo systemctl restart bb-epaper</code>. The new layout will
+    appear within one <code>refresh_seconds</code> window.
+  </p>
+</section>
+
+<!-- ─────────────────────────────────────────────── -->
+<section>
+  <h2>For Integrators · HTTP Endpoints</h2>
+  <p>
+    The Pi service exposes a small HTTP API at port <code>8081</code>.
+    Useful if you want to drive the device from outside the web UI, or
+    write your own client.
+  </p>
+
+  <table class="api">
+    <thead>
+      <tr><th>Method</th><th>Path</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="method">GET</td>
+        <td class="path">/</td>
+        <td>HTML web UI (the page mocked above).</td>
+      </tr>
+      <tr>
+        <td class="method">GET</td>
+        <td class="path">/epaper/frame.bin</td>
+        <td>48 000 bytes of 1-bpp packed pixels (800 × 480, MSB-first, row-major). Response header <code>X-Epaper-Page</code> names the page baked into this frame.</td>
+      </tr>
+      <tr>
+        <td class="method">GET</td>
+        <td class="path">/epaper/frame.png?page=&lt;name&gt;</td>
+        <td>The same frame rendered as PNG, for web preview / debugging.</td>
+      </tr>
+      <tr>
+        <td class="method">GET</td>
+        <td class="path">/epaper/config</td>
+        <td>Current config as JSON: <code>{refresh_seconds, pages, data_ttl_seconds, host, port}</code>.</td>
+      </tr>
+      <tr>
+        <td class="method post">POST</td>
+        <td class="path">/epaper/config</td>
+        <td>Update config. Body is a partial JSON object; missing fields are kept.</td>
+      </tr>
+      <tr>
+        <td class="method post">POST</td>
+        <td class="path">/epaper/heartbeat</td>
+        <td>Device check-in. Body <code>{fw, rssi, page}</code>. Reply <code>{refresh_seconds}</code> — the device honors this on its next sleep.</td>
+      </tr>
+      <tr>
+        <td class="method">GET</td>
+        <td class="path">/epaper/status</td>
+        <td>Last heartbeat, current page, last error, cache age — for monitoring.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="muted">
+    No auth. The service binds <code>0.0.0.0:8081</code>, so it's reachable
+    from anywhere on the LAN. Don't expose it to the internet without a
+    reverse proxy.
+  </p>
+</section>
+
+<!-- ─────────────────────────────────────────────── -->
+<section>
+  <h2>Quick Troubleshooting</h2>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3>Blank panel after boot</h3>
+      <p class="muted">
+        Open the serial monitor at 115 200 baud (USB-C to the XIAO).
+        WiFi or HTTP errors print there. Confirm the Pi service is up:
+      </p>
+      <pre>sudo systemctl status bb-epaper
+journalctl -u bb-epaper -n 50</pre>
+    </div>
+
+    <div class="panel">
+      <h3>No bb-epaper-setup AP after BOOT-hold</h3>
+      <p class="muted">
+        Did you hold BOOT during <em>reset</em> instead of during
+        <em>runtime</em>? Holding during reset puts the chip into USB
+        download mode, not setup mode. Power-cycle and wait ~30 s — the
+        firmware tries connecting before opening the AP.
+      </p>
+    </div>
+
+    <div class="panel">
+      <h3>Short read on frame.bin</h3>
+      <p class="muted">
+        The Pi service may be doing a cold fetch from upstream APIs (can
+        take ~8 s). The firmware's HTTP timeout is 15 s, so cold cache is
+        usually fine. On a flaky network, bump the timeout in
+        <code>fetchFrame()</code>.
+      </p>
+    </div>
+
+    <div class="panel">
+      <h3>Web UI unreachable</h3>
+      <p class="muted">
+        SSH to the Pi and confirm the service is serving:
+      </p>
+      <pre>curl -I http://127.0.0.1:8081/epaper/frame.bin
+sudo systemctl restart bb-epaper</pre>
+    </div>
+
+    <div class="panel">
+      <h3>Ghosting on the panel</h3>
+      <p class="muted">
+        The firmware forces a full refresh every cycle, so ghosting
+        shouldn't accumulate. If it does, unplug the panel for a few
+        seconds and re-seat the FPC connector. Some panels need an
+        all-white frame to fully clear after long static periods.
+      </p>
+    </div>
+
+    <div class="panel">
+      <h3>Want to change WiFi networks</h3>
+      <p class="muted">
+        Hold BOOT for ≥ 2 s while the device is running. It wipes saved
+        creds and reopens the captive portal. No need to reflash.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  bb-epaper · companion device for BB-Terminal · Pi-rendered, device-blitted
+</footer>
+
+</div>
+
+<script>
+(() => {
+  const btn   = document.getElementById('bootBtn');
+  const fill  = document.getElementById('bootFill');
+  const label = document.getElementById('bootLabel');
+  const state = document.getElementById('bootState');
+
+  const THRESHOLD_MS = 2000;
+  let pressStart = 0;
+  let raf = 0;
+  let committed = false;
+
+  function pct(ms) {
+    return Math.min(100, (ms / THRESHOLD_MS) * 100);
+  }
+
+  function tick() {
+    if (!pressStart) return;
+    const held = performance.now() - pressStart;
+    fill.style.right = (100 - pct(held)) + '%';
+    label.textContent = `held: ${(held / 1000).toFixed(2)} s   threshold: 2.00 s`;
+    if (held >= THRESHOLD_MS && !committed) {
+      committed = true;
+      fill.classList.add('done');
+      state.textContent = 'Threshold hit — release to commit.';
+    } else if (!committed) {
+      state.textContent = 'Holding…';
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+  function press() {
+    if (pressStart) return;
+    pressStart = performance.now();
+    committed = false;
+    btn.classList.add('pressed');
+    fill.classList.remove('done');
+    tick();
+  }
+
+  function release() {
+    if (!pressStart) return;
+    const held = performance.now() - pressStart;
+    cancelAnimationFrame(raf);
+    btn.classList.remove('pressed');
+    pressStart = 0;
+
+    if (held >= THRESHOLD_MS) {
+      state.textContent = '✓ Creds wiped — rebooting into bb-epaper-setup AP.';
+      fill.style.right = '0%';
+    } else {
+      state.textContent = `Released early (${(held / 1000).toFixed(2)} s) — no action.`;
+      // animate the bar draining
+      let r = pct(held);
+      const drain = setInterval(() => {
+        r = Math.max(0, r - 6);
+        fill.style.right = (100 - r) + '%';
+        if (r === 0) {
+          clearInterval(drain);
+          label.textContent = 'held: 0.00 s   threshold: 2.00 s';
+        }
+      }, 16);
+    }
+  }
+
+  btn.addEventListener('mousedown',  press);
+  btn.addEventListener('touchstart', (e) => { e.preventDefault(); press(); }, { passive: false });
+  btn.addEventListener('mouseup',    release);
+  btn.addEventListener('mouseleave', release);
+  btn.addEventListener('touchend',   release);
+  btn.addEventListener('touchcancel',release);
+  // keyboard accessibility — space to press
+  btn.addEventListener('keydown', (e) => {
+    if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) {
+      e.preventDefault();
+      press();
+    }
+  });
+  btn.addEventListener('keyup', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      release();
+    }
+  });
+  btn.tabIndex = 0;
+})();
+</script>
+</body>
+</html>
