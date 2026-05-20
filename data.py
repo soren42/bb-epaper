@@ -3,10 +3,16 @@ from __future__ import annotations
 
 import asyncio
 import datetime as dt
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterable
 
 import httpx
+
+# Canonical watchlist lives in the BB-Terminal repo; both this service and
+# the BB-Terminal frontend read it. Edit there to update both displays.
+WATCHLIST_PATH = Path("/usr/local/BB-Terminal/app/src/data/watchlist.json")
 
 API_BASE = "http://127.0.0.1:6900/api/v1"
 TIMEOUT = httpx.Timeout(8.0, connect=2.0)
@@ -49,30 +55,7 @@ class Mover:
     chg_pct: float | None  # percent (already scaled)
 
 
-WATCHLIST: list[Asset] = [
-    Asset("BTC-USD", "Bitcoin",           "crypto"),
-    Asset("AAPL",    "Apple",             "equity"),
-    Asset("NDAQ",    "Nasdaq Inc",        "equity"),
-    Asset("ARM",     "ARM Holdings",      "equity"),
-    Asset("WFC",     "Wells Fargo",       "equity"),
-    Asset("^DJI",    "Dow Jones",         "index"),
-    Asset("TSLA",    "Tesla",             "equity"),
-    Asset("NVDA",    "Nvidia",            "equity"),
-    Asset("LCID",    "Lucid Motors",      "equity"),
-    Asset("AMZN",    "Amazon",            "equity"),
-    Asset("RIVN",    "Rivian",            "equity"),
-    Asset("MSFT",    "Microsoft",         "equity"),
-    Asset("GOOGL",   "Alphabet",          "equity"),
-    Asset("F",       "Ford",              "equity"),
-    Asset("AMD",     "AMD",               "equity"),
-    Asset("META",    "Meta Platforms",    "equity"),
-    Asset("AMC",     "AMC Entertainment", "equity"),
-    Asset("DIS",     "Disney",            "equity"),
-    Asset("WMT",     "Walmart",           "equity"),
-    Asset("NFLX",    "Netflix",           "equity"),
-    Asset("KO",      "Coca-Cola",         "equity"),
-    Asset("QQQ",     "Invesco QQQ",       "etf"),
-]
+WATCHLIST: list[Asset] = [Asset(**item) for item in json.loads(WATCHLIST_PATH.read_text())]
 
 CC_INDICES: list[Asset] = [
     Asset("^GSPC", "S&P 500",   "index"),
